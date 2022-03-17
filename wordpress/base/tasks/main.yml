@@ -1,0 +1,84 @@
+- name: disable firewalld
+  service: name=firewalld state=stopped enabled=no
+
+- name: disable selinux
+  selinux: state=disabled
+
+- name: create webgroup  {{web_user}}  {{web_user_id}}
+  group: name={{web_user}} gid={{web_user_id}}
+
+- name: create web user {{web_user}}  {{web_user_id}}
+  user: name={{web_user}} uid={{web_user_id}} group={{web_user}}
+
+- name: add base aliyun repo
+  yum_repository:
+    name: base-ansiblee
+    description: Base aliyun repository
+    baseurl: http://mirrors.aliyun.com/centos/$releasever/os/$basearch/
+    gpgcheck: yes
+    gpgkey: http://mirrors.aliyun.com/centos/RPM-GPG-KEY-CentOS-7
+
+- name: add epelrepository
+  yum_repository:
+    name: epel
+    description: epel aliyun repository
+    baseurl: http://mirrors.aliyun.com/epel/7/$basearch
+    gpgcheck: no
+
+- name: add nginx repository
+  yum_repository:
+     name: nginx
+     description: nginx repository
+     baseurl: http://nginx.org/packages/centos/7/$basearch
+     gpgcheck: no 
+  when: (ansible_hostname is match('web*')) or 
+        (ansible_hostname is match('lb*'))
+
+#- name: add php repository
+#  yum_repository:
+#     name: php71
+#     description: php repository
+#     baseurl: http://us-east.repo.webtatic.com/yum/el7/x86_64/
+#     baseurl: http://rpms.remirepo.net/enterprise/7/php71/$basearch/ 
+#     gpgcheck: no 
+#  when: (ansible_hostname is match('web*'))
+
+- name: install packages all
+  yum: name={{packages}}  state=present
+  vars:
+    packages:
+     - rsync
+     - nfs-utils
+     - net-tools
+     - wget
+     - tree
+     - lrzsz
+     - vim
+     - unzip
+     - httpd-tools
+     - iftop
+     - screen
+     - bash-completion
+     - iotop
+     - glances
+- name: change limit file limit
+  pam_limits:
+     domain: "*"
+     limit_type: soft
+     limit_item: nofile
+     value: 100000
+
+- name: change limit file limit
+  pam_limits:
+     domain: "*"
+     limit_type: hard
+     limit_item: nofile
+     value: 100000
+#    limit_item: "{{ item.limit_item }}"
+#3    value: 100000 
+#  with items:
+#     - { limit_type: 'soft', limit_item: 'nofile' }
+#     - { limit_type: 'hard', limit_item: 'nofile' }
+  
+
+

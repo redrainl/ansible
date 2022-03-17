@@ -1,0 +1,13 @@
+- name: install nfs
+  yum: name=nfs-utils state=present
+
+- name: config NFS
+  template: src=exports.j2 dest=/etc/exports
+  notify: restart nfs
+
+- name: create nfs direcdtory
+  file: path={{ nfs_dir }}  state=directory owner={{ web_user }} group={{ web_user }}
+
+- name: start nfs
+  service: name=nfs state=started enabled=yes
+- 

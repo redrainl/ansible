@@ -1,0 +1,26 @@
+- hosts: all
+  roles:
+    - role: base
+  tags: base
+- hosts: webserver
+  roles:
+    - role: nginx
+    - role: php-fpm
+  tags: php
+- hosts: nfsserver
+  roles: 
+    - role: nfs
+      tags: nfs
+
+- hosts: dbserver
+  roles:
+    - role: redis
+      tags: redis
+- hosts: dbserver
+  roles: 
+    - role: mysql
+- hosts: lbserver
+  roles:
+    - role: nginx
+    - role: keepalived
+  tags: lb

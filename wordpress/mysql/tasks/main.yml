@@ -1,0 +1,39 @@
+- name: install mariadb
+  yum: name={{packages}} state=present
+  vars:
+    packages:
+      - mariadb
+      - mariadb-server
+      - MySQL-python
+- name: config mariadb
+  template: src=my.cnf.j2 dest=/etc/my.cnf backup=yes
+  notify: restart myariadb
+
+- name: start mariadb
+  service: name=mariadb state=started
+
+
+#1.用户名密码
+- name: create database
+  mysql_db: name={{item}} state=present collation=utf8_bin encoding=utf8
+  with_items:
+    - wordpress
+    - wecenter
+    - jpress
+    - zabbix
+- name: create db user
+  mysql_user: name={{web_db_user}} password={{web_db_pass}} priv=*.*:ALL  host='%' state=present
+
+- name: create zabbix db user
+  mysql_user: 
+    name: "{{zabbix_db_user}}" 
+    password: "{{zabbix_db_pass}}" 
+    priv: "{{zabbix_db_name}}.*:ALL" 
+    host: '%' 
+    state: present
+
+#2.库
+#3. 远程连接
+
+
+
