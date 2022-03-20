@@ -1,0 +1,11 @@
+- hosts: 'workers,masters'
+  become: yes
+  tasks:
+    - name: install package
+      apt: name={{packages}} state=present
+      vars:
+        packages:
+           - acl
+           - tcpdump
+           - iftop
+           - glances
